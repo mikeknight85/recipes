@@ -37,7 +37,7 @@
 	<key>MinimumVersion</key>
 	<string>2.3</string>
 	<key>ParentRecipe</key>
-	<string>com.github.mikeknight85.recipes.EnterpriseTelephony</string>
+	<string>com.github.mikeknight85.recipes.download.EnterpriseTelephony</string>
 	<key>Process</key>
 	<array>
 		<dict>
