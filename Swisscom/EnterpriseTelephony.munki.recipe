@@ -7,7 +7,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of Enterprise Telephony and imports it into Munki.</string>
 	<key>Identifier</key>
-	<string>com.github.mikeknight85.munki.EnterpriseTelephony</string>
+	<string>com.github.mikeknight85.recipes.munki.EnterpriseTelephony</string>
 	<key>Input</key>
 	<dict>
 		<key>MUNKI_REPO_SUBDIR</key>
@@ -37,7 +37,7 @@
 	<key>MinimumVersion</key>
 	<string>2.3</string>
 	<key>ParentRecipe</key>
-	<string>ch.github.mikeknight85.download.EnterpriseTelephony</string>
+	<string>com.github.mikeknight85.recipes.EnterpriseTelephony</string>
 	<key>Process</key>
 	<array>
 		<dict>

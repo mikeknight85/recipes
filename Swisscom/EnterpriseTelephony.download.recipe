@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the latest version of Enterprise Telephony.</string>
+	<string>Downloads the latest version of EnterpriseTelephony.</string>
 	<key>Identifier</key>
-	<string>com.github.mikeknight85.download.EnterpriseTelephony</string>
+	<string>com.github.mikeknight85.recipes.download.EnterpriseTelephony</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
