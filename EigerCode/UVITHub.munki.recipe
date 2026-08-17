@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the UVIT Hub macOS client (a Munki fork) from the private EigerCode/uvit-hub-mac repo and imports it into Munki.
+
+This ships the management client itself, so it is the one item where a bad build can cost the fleet its ability to receive any future update. Keep it in the 'test' ring until it has been proven on real machines.
+
+KNOWN LIMITATION — install detection. The package's components still carry upstream Munki's identifiers (com.googlecode.munki.*) and version (7.2.0.5787). Munki decides whether an item is installed from those receipts, so:
+
+  * a client that already has vanilla munkitools 7.2.0.5787 counts this as installed and will not install it, and
+  * a later build (uvit-hub-v7.2.0-31) carries the same receipts, so clients that have -30 will not update.
+
+The pkginfo version below comes from the release tag, which at least keeps each build a distinct catalog item instead of MunkiImporter silently deduping it. The real fix belongs in the uvit-hub-mac build: stamp the release number into the component versions (7.2.0.5787.30) and, ideally, rebrand the identifiers to ch.eigercode.munki.* so the fork can never be confused with vanilla Munki. Once the build does that, the version handling in the parent recipe can be dropped and this note deleted.</string>
+	<key>Identifier</key>
+	<string>com.github.mikeknight85.recipes.munki.UVITHub</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>UVITHub</string>
+		<key>MUNKI_REPO_SUBDIR</key>
+		<string>EigerCode/UVITHub</string>
+		<key>pkginfo</key>
+		<dict>
+			<key>catalogs</key>
+			<array>
+				<string>testing</string>
+			</array>
+			<key>description</key>
+			<string>The UVIT Hub client for macOS — manages software installation and inventory on this Mac.</string>
+			<key>developer</key>
+			<string>EigerCode</string>
+			<key>display_name</key>
+			<string>UVIT Hub</string>
+			<key>name</key>
+			<string>%NAME%</string>
+			<key>unattended_install</key>
+			<true/>
+		</dict>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>2.3</string>
+	<key>ParentRecipe</key>
+	<string>com.github.mikeknight85.recipes.download.UVITHub</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Comment</key>
+			<string>Merge the tag-derived version into the pkginfo. MunkiImporter has no additional_pkginfo of its own — it reads the merged %pkginfo% from the environment — so the merge has to happen in its own step first. Without this the version would come from the package, which is upstream Munki's 7.2.0.5787 for every build.</string>
+			<key>Arguments</key>
+			<dict>
+				<key>additional_pkginfo</key>
+				<dict>
+					<key>version</key>
+					<string>%version%</string>
+				</dict>
+			</dict>
+			<key>Processor</key>
+			<string>MunkiPkginfoMerger</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkg_path</key>
+				<string>%pathname%</string>
+				<key>repo_subdirectory</key>
+				<string>%MUNKI_REPO_SUBDIR%</string>
+			</dict>
+			<key>Processor</key>
+			<string>MunkiImporter</string>
+		</dict>
+	</array>
+</dict>
+</plist>
