@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the UVIT Hub macOS client from the EigerCode release repo.
+
+The release asset is not publicly downloadable, so this cannot use browser_download_url. GitHubReleasesInfoProvider also emits asset_url, the api.github.com URL for the asset, which serves the binary when asked with 'Accept: application/octet-stream' plus an Authorization header — that is what this recipe downloads.
+
+Requires an AutoPkg GITHUB_TOKEN with read access to the release repo; a workflow's own GITHUB_TOKEN from a different repo is not sufficient.
+
+The version is derived from the release tag rather than the package, because the package's internal version does not change from build to build.</string>
+	<key>Identifier</key>
+	<string>com.github.mikeknight85.recipes.download.UVITHub</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>UVITHub</string>
+		<key>GITHUB_REPO</key>
+		<string>EigerCode/uvit-hub-mac</string>
+		<key>ASSET_REGEX</key>
+		<string>^munkitools\.pkg$</string>
+		<key>TAG_PREFIX</key>
+		<string>uvit-hub-v</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>2.3</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>asset_regex</key>
+				<string>%ASSET_REGEX%</string>
+				<key>github_repo</key>
+				<string>%GITHUB_REPO%</string>
+				<key>include_prereleases</key>
+				<false/>
+			</dict>
+			<key>Processor</key>
+			<string>GitHubReleasesInfoProvider</string>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>Turn the release tag into a Munki-comparable version: strip the tag prefix (uvit-hub-v7.2.0-30 -> 7.2.0-30). GitHubReleasesInfoProvider only strips a leading 'v', which this tag does not have.</string>
+			<key>Arguments</key>
+			<dict>
+				<key>find</key>
+				<string>%TAG_PREFIX%</string>
+				<key>input_string</key>
+				<string>%version%</string>
+				<key>replace</key>
+				<string></string>
+				<key>result_output_var_name</key>
+				<string>tag_version</string>
+			</dict>
+			<key>Processor</key>
+			<string>FindAndReplace</string>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>...then the build separator (7.2.0-30 -> 7.2.0.30), so Munki's version comparison sees a normal dotted version and orders builds correctly.</string>
+			<key>Arguments</key>
+			<dict>
+				<key>find</key>
+				<string>-</string>
+				<key>input_string</key>
+				<string>%tag_version%</string>
+				<key>replace</key>
+				<string>.</string>
+				<key>result_output_var_name</key>
+				<string>version</string>
+			</dict>
+			<key>Processor</key>
+			<string>FindAndReplace</string>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>asset_url (not url): the API endpoint for the asset, which is the only one that serves a private repo's binary. The Accept header is what makes it return the file instead of the asset's JSON metadata.</string>
+			<key>Arguments</key>
+			<dict>
+				<key>filename</key>
+				<string>%NAME%.pkg</string>
+				<key>request_headers</key>
+				<dict>
+					<key>Accept</key>
+					<string>application/octet-stream</string>
+					<key>Authorization</key>
+					<string>token %GITHUB_TOKEN%</string>
+				</dict>
+				<key>url</key>
+				<string>%asset_url%</string>
+			</dict>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>EndOfCheckPhase</string>
+		</dict>
+	</array>
+</dict>
+</plist>
